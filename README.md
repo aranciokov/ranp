@@ -11,7 +11,7 @@ export PYTHONPATH=$(pwd):${PYTHONPATH}
 
 #### Data
 - Features: 
-    - TBN **EPIC-Kitchens-100** [**features**]() from [JPoSE's repo](https://github.com/mwray/Joint-Part-of-Speech-Embeddings). 
+    - TBN **EPIC-Kitchens-100** [**features**](https://drive.google.com/file/d/16_WXNg2aziVBsWjc1_egE4YjnJ_aKbrM/view?usp=sharing) from [JPoSE's repo](https://github.com/mwray/Joint-Part-of-Speech-Embeddings). 
     - ResNet-152 **MSR-VTT** [**features**](https://drive.google.com/file/d/1MrViy6BPGG0xFiss0dxLmmSscYB1N-CY/view?usp=sharing) from [HGR's repo](https://github.com/cshizhe/hgr_v2t).
 - Additional:
     - pre-extracted annotations for [EPIC-Kitchens-100](https://drive.google.com/file/d/1sZmbyAiOmclYSP0CZk6WRhOHqEMEF4Ej/view?usp=sharing) and [MSR-VTT](https://drive.google.com/file/d/19tahPCjOEQmfdU250qdJYufj5lGDNVm4/view?usp=sharing)

@@ -86,6 +86,19 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
           if dname == "epic":
             print("reading epic100 unique caps")
             self.captions = pandas.read_csv("annotation/epic100RET/EPIC_100_retrieval_test_sentence.csv")['narration'].values
+          if dname == "msr-vtt-1kA":
+            self.captions = list()
+            self.pair_idxs = []
+            self.ref_captions = json.load(open("annotation/msr-vttRET/ref_captions_msrvtt_val_1kA.json"))
+            tmp = json.load(open("annotation/msr-vttRET/caps_msrvtt_1kA_wrong.json"))
+            for i, name in enumerate(self.names):
+              if name.replace(".mp4", "") in tmp:
+                self.captions.append(tmp[name.replace(".mp4", "")])
+                self.pair_idxs.append((i, self.ref_captions[name].index(tmp[name.replace(".mp4", "")])))
+              else:
+                #print(i, name)
+                self.captions.append(self.ref_captions[name][0])
+                self.pair_idxs.append((i, 0))
 
       self.num_pairs = len(self.pair_idxs)
       self.print_fn('captions size %d' % self.num_pairs)
@@ -147,7 +160,14 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
         key = name.replace('/', '_')
         attn_ft = f[key][...]
         attn_fts.append(attn_ft)
-    attn_fts = np.concatenate([attn_ft for attn_ft in attn_fts], axis=-1)
+    #attn_fts = np.concatenate([attn_ft for attn_ft in attn_fts], axis=-1)
+    attn_fts = [attn_ft for attn_ft in attn_fts]
+    lens = [len(a) for a in attn_fts]
+    if not all([l == lens[0] for l in lens]):  # not all share the same length
+        min_len = min(lens)
+        attn_fts = [attn_ft[np.linspace(0, len(attn_ft)-1, min_len, dtype=int)] for attn_ft in attn_fts]
+    
+    attn_fts = np.concatenate(attn_fts, axis=-1)
     return attn_fts
 
   def pad_or_trim_feature(self, attn_ft, max_attn_len, trim_type='top'):
@@ -294,6 +314,123 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
       outs = collate_graph_fn(data)
       yield outs
 
+
+class Word2VecRoleGraphDataset(RoleGraphDataset):  
+    def __init__(self, name_file, attn_ft_files, word2int_file,
+                 max_words_in_sent, num_verbs, num_nouns, ref_caption_file, ref_graph_file, 
+                 max_attn_len=20, load_video_first=False, is_train=False, _logger=None,
+                 dataset_file='', is_test=False, dname="", rel_mat_path="", threshold_pos=1):
+        super().__init__(name_file, attn_ft_files, word2int_file,
+                 max_words_in_sent, num_verbs, num_nouns, ref_caption_file, ref_graph_file, 
+                 max_attn_len, load_video_first, is_train, _logger,
+                 dataset_file, is_test, dname, rel_mat_path, threshold_pos)
+        from gensim.models.keyedvectors import KeyedVectors
+        # import gensim.downloader as api
+        # self.wv = api.load('word2vec-google-news-300')
+        from gensim.models.keyedvectors import KeyedVectors
+        self.wv = KeyedVectors.load_word2vec_format("../everything_at_once/data/GoogleNews-vectors-negative300.bin", binary=True)
+        
+    def process_sent(self, sent, max_words):
+        tokens = [self.wv[w] for w in sent.split() if w in self.wv]  # else np.random.randn((300)).astype('f') 
+        # # add BOS, EOS?
+        # tokens = [BOS] + tokens + [EOS]
+        tokens = tokens[:max_words]
+        tokens_len = len(tokens)
+        tokens = np.array(tokens + [np.zeros((300))] * (max_words - tokens_len), dtype=np.float32)
+        return tokens, tokens_len
+
+class Word2VecNoGraphsDataset(Word2VecRoleGraphDataset):
+    def __getitem__(self, idx):
+        out = {}
+        if self.is_train:
+          video_idx, cap_idx = self.pair_idxs[idx]
+          name = self.names[video_idx]
+          sent = self.ref_captions[name][cap_idx]
+          sent_ids, sent_len = self.process_sent(sent, self.max_words_in_sent)
+          out['sent_ids'] = sent_ids
+          out['sent_lens'] = sent_len
+        else:
+          video_idx = idx
+          name = self.names[idx]
+
+        if self.load_video_first:
+          attn_fts, attn_len = self.all_attn_fts[video_idx], self.all_attn_lens[video_idx]
+        else:
+          attn_fts = self.load_attn_ft_by_name(name, self.attn_ft_files)
+          attn_fts, attn_len = self.pad_or_trim_feature(attn_fts, self.max_attn_len, trim_type='select')
+
+        out['names'] = name
+        out['attn_fts'] = attn_fts
+        out['attn_lens'] = attn_len
+        if self.is_train:
+          out['threshold_pos'] = self.threshold_pos
+
+        if self.dataset_file_path != '' and self.is_train:
+          if self.dname == "msr-vtt":
+            video_name = name.replace(".mp4", "")
+            _keys = self.video_cap_keys[video_name]
+            #sorted([_k for _k in self.dataset_file.keys() if name.replace(".mp4", "") in _k],
+            #              key=lambda vk: int(vk.replace("video", "")))
+            _key = _keys[cap_idx]
+
+            out['video_noun_classes'] = self.video_captions_noun_classes[video_name]
+            out['video_verb_classes'] = self.video_captions_verb_classes[video_name]
+          elif self.dname == "vatex":
+            _key = f'{name}_{cap_idx}'
+            out['video_noun_classes'] = self.video_captions_noun_classes[name]
+            out['video_verb_classes'] = self.video_captions_verb_classes[name]
+          else:
+            _key = name
+          nc_str = self.dataset_file[_key]["annotations"][0]["noun_classes"]
+          if isinstance(nc_str, str):
+            nc_str = list(map(int, nc_str.replace("[", "").replace("]", "").split(",")))
+          out['noun_classes'] = nc_str
+          out['verb_class'] = self.dataset_file[_key]["annotations"][0]["verb_class"]
+
+        return out
+    
+    def iterate_over_captions(self, batch_size):
+        # the sentence order is the same as self.captions
+        for s in range(0, len(self.captions), batch_size):
+          e = s + batch_size
+          data = []
+          for sent in self.captions[s: e]:
+            out = {}
+            sent_ids, sent_len = self.process_sent(sent, self.max_words_in_sent)
+            out['sent_ids'] = sent_ids
+            out['sent_lens'] = sent_len
+            data.append(out)
+          outs = collate_graph_fn(data)
+          yield outs
+    
+    def load_attn_ft_by_name(self, name, attn_ft_files):
+        attn_fts = []
+        for i, attn_ft_file in enumerate(attn_ft_files):
+          with h5py.File(attn_ft_file, 'r') as f:
+            key = name.replace('/', '_')
+            attn_ft = f[key][...]
+            attn_fts.append(attn_ft)
+        #attn_fts = np.concatenate([attn_ft for attn_ft in attn_fts], axis=-1)
+        attn_fts = [attn_ft for attn_ft in attn_fts]
+        lens = [len(a) for a in attn_fts]
+        if not all([l == lens[0] for l in lens]):  # not all share the same length
+            #min_len = min(lens)
+            #attn_fts = [attn_ft[np.linspace(0, len(attn_ft)-1, min_len, dtype=int)] for attn_ft in attn_fts]
+            max_len = 48 #max(lens)
+            tmp = []
+            for attn_ft in attn_fts:
+                if len(attn_ft) < max_len:
+                    attn_ft = torch.nn.functional.interpolate(torch.from_numpy(attn_ft).float().permute(1,0).unsqueeze(0), 
+                                                              size=max_len, 
+                                                              mode='nearest').squeeze(0).permute(1,0).numpy()
+                attn_ft = torch.nn.functional.normalize(torch.from_numpy(attn_ft[:max_len]), dim=1)
+                #else:
+                #    new_ft = attn_ft[np.linspace(0, len(attn_ft)-1, max_len, dtype=int)]
+                tmp.append(attn_ft)
+        #attn_fts = np.concatenate(attn_fts, axis=-1)
+        attn_fts = np.concatenate(tmp, axis=-1)
+        return attn_fts
+
 def collate_graph_fn(data):
   outs = {}
   for key in ['names', 'attn_fts', 'attn_lens', 'sent_ids', 'sent_lens',
@@ -312,8 +449,9 @@ def collate_graph_fn(data):
   if 'sent_lens' in outs:
     max_cap_len = np.max(outs['sent_lens'])
     outs['sent_ids'] = np.array(outs['sent_ids'])[:, :max_cap_len]
-    outs['verb_masks'] = np.array(outs['verb_masks'])[:, :, :max_cap_len]
-    outs['noun_masks'] = np.array(outs['noun_masks'])[:, :, :max_cap_len]
+    if 'verb_masks' in outs:
+        outs['verb_masks'] = np.array(outs['verb_masks'])[:, :, :max_cap_len]
+        outs['noun_masks'] = np.array(outs['noun_masks'])[:, :, :max_cap_len]
 
   if 'noun_classes' in data[0]:
     outs['noun_classes'] = [x['noun_classes'] for x in data]

@@ -107,3 +107,64 @@ class SentAttnEncoder(SentEncoder):
     else:
       return torch.sum(hiddens * attn_scores.unsqueeze(2), 1)
   
+class EAOConfig(framework.configbase.ModuleConfig):
+    def __init__(self):
+        super().__init__()
+        self.use_positional_embed = True
+        self.token_projection = "gated"
+        self.num_words = 30
+        self.dim_embed = 512
+        self.fix_word_embed = True
+        self.dim_word = 300
+
+class EAOEncoder(nn.Module):
+    def __init__(self, config):
+        from t2vretrieval.encoders.layers import get_projection
+
+        super().__init__()
+        self.config = config
+        
+        self.embedding = Embedding(self.config.num_words, self.config.dim_word,
+          fix_word_embed=self.config.fix_word_embed)
+        dim_word = self.config.dim_word
+        
+        self.norm_layer = nn.LayerNorm(self.config.dim_embed, eps=1e-6)
+        
+        self.token_proj = get_projection(self.config.dim_word, self.config.dim_embed, self.config.token_projection)
+    
+    def forward(self, cap_ids, lens=None):
+        if self.config.fix_word_embed:
+            with torch.no_grad():
+                word_embeds = self.embedding(cap_ids)
+        else:
+            word_embeds = self.embedding(cap_ids)
+        y = self.token_proj(word_embeds)
+        y = self.norm_layer(y)
+        if lens is not None:
+            assert len(lens.shape) == 1, f"Lengths should be 1-D, found {lens.shape}"
+            mask = (torch.arange(y.shape[1], device=y.device).repeat(y.shape[0], 1) < lens.unsqueeze(1)).float()
+            y = y * mask.clone().unsqueeze(-1)
+        
+        return y, mask
+
+class EAOWord2VecEncoder(nn.Module):
+    def __init__(self, config):
+        from t2vretrieval.encoders.layers import get_projection
+
+        super().__init__()
+        self.config = config
+        
+        self.norm_layer = nn.LayerNorm(self.config.dim_embed, eps=1e-6)
+        
+        self.token_proj = get_projection(self.config.dim_word, self.config.dim_embed, self.config.token_projection)
+    
+    def forward(self, word_embeds, lens=None):
+        #print(word_embeds.shape)
+        y = self.token_proj(word_embeds)
+        y = self.norm_layer(y)
+        if lens is not None:
+            assert len(lens.shape) == 1, f"Lengths should be 1-D, found {lens.shape}"
+            mask = (torch.arange(y.shape[1], device=y.device).repeat(y.shape[0], 1) < lens.unsqueeze(1)).float()
+            y = y * mask.clone().unsqueeze(-1)
+        
+        return y, mask

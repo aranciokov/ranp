@@ -31,3 +31,31 @@ class MPEncoder(nn.Module):
     embeds = self.dropout(embeds)
     return embeds
 
+
+class EAOConfig(framework.configbase.ModuleConfig):
+    def __init__(self):
+        super().__init__()
+        self.dim_fts = [2048]
+        self.dim_embed = 512
+        self.use_positional_embed = True
+        self.token_projection = "gated"
+
+class EAOEncoder(nn.Module):
+    def __init__(self, config):
+        from t2vretrieval.encoders.layers import get_projection
+
+        super().__init__()
+        self.config = config
+        self.norm_layer = nn.LayerNorm(self.config.dim_embed, eps=1e-6)
+        
+        self.token_proj = get_projection(sum(self.config.dim_fts), self.config.dim_embed, self.config.token_projection)
+            
+    def forward(self, x, lens=None):
+        y = self.token_proj(x)
+        y = self.norm_layer(y)
+        if lens is not None:
+            assert len(lens.shape) == 1, f"Lengths should be 1-D, found {lens.shape}"
+            mask = (torch.arange(y.shape[1], device=y.device).repeat(y.shape[0], 1) < lens.unsqueeze(1)).float()
+            y = y * mask.clone().unsqueeze(-1)
+        
+        return y, mask

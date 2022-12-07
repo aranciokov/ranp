@@ -45,14 +45,14 @@ To resume one of the checkpoints provided:
 - HGR: [(35.9 nDCG, 39.5 mAP)](https://drive.google.com/file/d/1uIiUVQhrfI3GBXmNpr8jQNNI6NEWPqdU/view?usp=sharing) 
 - HGR with **RANP**: [thr=0.15 (58.8 nDCG, 47.2 mAP)](https://drive.google.com/file/d/1TrT38HclugJ_l49tvfr0AbW0Pg5wrSMF/view?usp=sharing)
 - EAO: [(34.5 nDCG, 35.0 mAP)](https://drive.google.com/file/d/1APeQO1tj4ErzH2AvCbRFN1wR6WsHNmp-/view?usp=sharing)
-- EAO with RANP: [thr=0.10 (59.5 nDCG, 45.1 mAP)](https://drive.google.com/file/d/1AokXrQh5wvy655Jf-6zYL-btDtrO-jxI/view?usp=sharing)
+- EAO with **RANP**: [thr=0.10 (59.5 nDCG, 45.1 mAP)](https://drive.google.com/file/d/1AokXrQh5wvy655Jf-6zYL-btDtrO-jxI/view?usp=sharing)
 
 *On MSR-VTT:*
 - HGR: [(26.7 nDCG)](https://drive.google.com/file/d/1a7dtZsDoAoxoO3Zi0FL7yr5nkopUC08r/view?usp=sharing) 
 - HGR with **RANP**: [thr=0.10 (35.4 nDCG)](https://drive.google.com/file/d/14PK9lUoZVGK0Jv8YuhA4iY7Yaa0cR9zZ/view?usp=sharing)
 - EAO: [(24.8 nDCG)](https://drive.google.com/file/d/1biopwaPo8UExBs47PnAQJVqnOqCbRnwo/view?usp=sharing)
-- EAO with RANP: [thr=0.10 (34.4 nDCG)](https://drive.google.com/file/d/19s5lI4kBdI6XHwae__B-rUhjrTF8vz7o/view?usp=sharing)
-- EAO with RANP (+HowTo100M PT): [thr=0.10 (35.6 nDCG)](https://drive.google.com/file/d/1u44zv7PZGHiF6vwS2WYp2oJY4uKmnnoT/view?usp=sharing)
+- EAO with **RANP**: [thr=0.10 (34.4 nDCG)](https://drive.google.com/file/d/19s5lI4kBdI6XHwae__B-rUhjrTF8vz7o/view?usp=sharing)
+- EAO with **RANP** (+HowTo100M PT): [thr=0.10 (35.6 nDCG)](https://drive.google.com/file/d/1u44zv7PZGHiF6vwS2WYp2oJY4uKmnnoT/view?usp=sharing)
 
 #### Acknowledgements
 We thank the authors of 

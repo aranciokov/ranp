@@ -1,5 +1,5 @@
-# Relevance-aware online mining for a more semantic video retrieval
-In this repo, we provide code and pretrained models for the paper **Relevance-aware online mining for a more semantic video retrieval**, which was submitted to *IEEE Transactions on Multimedia*. The code also covers the implementation of a preliminary version of this work, called ["**Learning video retrieval models with relevance-aware online mining**"](https://arxiv.org/abs/2203.08688), which was accepted for presentation at the 21st International Conference on Image Analysis and Processing (ICIAP).
+# Improving Semantic Video Retrieval models by Training with a Relevance-aware Online Mining strategy
+In this repo, we provide code and pretrained models for the paper **Improving Semantic Video Retrieval models by Training with a Relevance-aware Online Mining strategy**, which was submitted to the *International Journal of Computer Vision*. The code also covers the implementation of a preliminary version of this work, called ["**Learning video retrieval models with relevance-aware online mining**"](https://arxiv.org/abs/2203.08688), which was accepted for presentation at the 21st International Conference on Image Analysis and Processing (ICIAP).
 
 #### Python environment
 Requirements: python 3, allennlp 2.8.0, h5py 3.6.0, pandas 1.3.5, spacy 2.3.5, torch 1.7.0 (also tested with 1.8)
@@ -43,16 +43,16 @@ To resume one of the checkpoints provided:
 #### Pretrained models
 *On EPIC-Kitchens-100:*
 - HGR: [(35.9 nDCG, 39.5 mAP)](https://drive.google.com/file/d/1uIiUVQhrfI3GBXmNpr8jQNNI6NEWPqdU/view?usp=sharing) 
-- HGR with **RANP**: [thr=0.15 (58.8 nDCG, 47.2 mAP)](https://drive.google.com/file/d/1TrT38HclugJ_l49tvfr0AbW0Pg5wrSMF/view?usp=sharing)
+- HGR with **Triplet-RANP**: [thr=0.15 (58.8 nDCG, 47.2 mAP)](https://drive.google.com/file/d/1TrT38HclugJ_l49tvfr0AbW0Pg5wrSMF/view?usp=sharing)
 - EAO: [(34.5 nDCG, 35.0 mAP)](https://drive.google.com/file/d/1APeQO1tj4ErzH2AvCbRFN1wR6WsHNmp-/view?usp=sharing)
-- EAO with **RANP**: [thr=0.10 (59.5 nDCG, 45.1 mAP)](https://drive.google.com/file/d/1AokXrQh5wvy655Jf-6zYL-btDtrO-jxI/view?usp=sharing)
+- EAO with **Triplet-RANP**: [thr=0.10 (59.5 nDCG, 45.1 mAP)](https://drive.google.com/file/d/1AokXrQh5wvy655Jf-6zYL-btDtrO-jxI/view?usp=sharing)
 
 *On MSR-VTT:*
 - HGR: [(26.7 nDCG)](https://drive.google.com/file/d/1a7dtZsDoAoxoO3Zi0FL7yr5nkopUC08r/view?usp=sharing) 
-- HGR with **RANP**: [thr=0.10 (35.4 nDCG)](https://drive.google.com/file/d/14PK9lUoZVGK0Jv8YuhA4iY7Yaa0cR9zZ/view?usp=sharing)
+- HGR with **Triplet-RANP**: [thr=0.10 (35.4 nDCG)](https://drive.google.com/file/d/14PK9lUoZVGK0Jv8YuhA4iY7Yaa0cR9zZ/view?usp=sharing)
 - EAO: [(24.8 nDCG)](https://drive.google.com/file/d/1biopwaPo8UExBs47PnAQJVqnOqCbRnwo/view?usp=sharing)
-- EAO with **RANP**: [thr=0.10 (34.4 nDCG)](https://drive.google.com/file/d/19s5lI4kBdI6XHwae__B-rUhjrTF8vz7o/view?usp=sharing)
-- EAO with **RANP** (+HowTo100M PT): [thr=0.10 (35.6 nDCG)](https://drive.google.com/file/d/1u44zv7PZGHiF6vwS2WYp2oJY4uKmnnoT/view?usp=sharing)
+- EAO with **Triplet-RANP**: [thr=0.10 (34.4 nDCG)](https://drive.google.com/file/d/19s5lI4kBdI6XHwae__B-rUhjrTF8vz7o/view?usp=sharing)
+- EAO with **Triplet-RANP** (+HowTo100M PT): [thr=0.10 (35.6 nDCG)](https://drive.google.com/file/d/1u44zv7PZGHiF6vwS2WYp2oJY4uKmnnoT/view?usp=sharing)
 
 #### Acknowledgements
 We thank the authors of 

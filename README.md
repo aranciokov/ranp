@@ -1,5 +1,5 @@
 # Improving Semantic Video Retrieval models by Training with a Relevance-aware Online Mining strategy
-In this repo, we provide code and pretrained models for the paper **Improving Semantic Video Retrieval models by Training with a Relevance-aware Online Mining strategy**, which was submitted to the *International Journal of Computer Vision*. The code also covers the implementation of a preliminary version of this work, called ["**Learning video retrieval models with relevance-aware online mining**"](https://arxiv.org/abs/2203.08688), which was accepted for presentation at the 21st International Conference on Image Analysis and Processing (ICIAP).
+In this repo, we provide code and pretrained models for the paper **Improving Semantic Video Retrieval models by Training with a Relevance-aware Online Mining strategy**, which is under journal review. The code also covers the implementation of a preliminary version of this work, called ["**Learning video retrieval models with relevance-aware online mining**"](https://arxiv.org/abs/2203.08688), which was accepted for presentation at the 21st International Conference on Image Analysis and Processing (ICIAP).
 
 #### Python environment
 Requirements: python 3, allennlp 2.8.0, h5py 3.6.0, pandas 1.3.5, spacy 2.3.5, torch 1.7.0 (also tested with 1.8)

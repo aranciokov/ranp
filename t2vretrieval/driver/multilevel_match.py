@@ -37,6 +37,8 @@ def main():
   model_cfg.load(opts.model_cfg_file)
   if hasattr(model_cfg, "mine_hard_positives") and model_cfg.mine_hard_positives:
     model_fn = t2vretrieval.models.mlmatch.HPRoleGraphMatchModel
+  if hasattr(model_cfg, "mine_hard_positives") and model_cfg.mine_hard_positives and hasattr(model_cfg, "rap_only") and model_cfg.rap_only:
+    model_fn = t2vretrieval.models.mlmatch.HPOnlyRoleGraphMatchModel
   _model = model_fn(model_cfg, _logger=_logger)
   
   collate_fn = t2vretrieval.readers.rolegraphs.collate_graph_fn
@@ -45,6 +47,12 @@ def main():
     dname = "epic"
   elif "msr-vtt" in path_cfg.int2word_file:
     dname = "msr-vtt"
+  elif "youcook" in path_cfg.int2word_file:
+    dname = "youcook"
+  elif "msvd" in path_cfg.int2word_file:
+    dname = "msvd"
+  elif "charades" in path_cfg.int2word_file:
+    dname = "charades"
   else:
     assert False, f'can not recognize dataset name from {path_cfg.int2word_file}'
 

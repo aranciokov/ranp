@@ -1,5 +1,5 @@
 # Improving Semantic Video Retrieval models by Training with a Relevance-aware Online Mining strategy
-In this repo, we provide code and pretrained models for the paper [**Improving semantic video retrieval models by training with a relevance-aware online mining strategy** (coming soon)](), which has been accepted at **Computer Vision and Image Understanding**! The code also covers the implementation of a preliminary version of this work, called ["**Learning video retrieval models with relevance-aware online mining**"](https://arxiv.org/abs/2203.08688), which was accepted for presentation at the 21st International Conference on Image Analysis and Processing (ICIAP).
+In this repo, we provide code and pretrained models for the paper [**Improving semantic video retrieval models by training with a relevance-aware online mining strategy**](https://doi.org/10.1016/j.cviu.2024.104035), which has been accepted at **Computer Vision and Image Understanding**! The code also covers the implementation of a preliminary version of this work, called ["**Learning video retrieval models with relevance-aware online mining**"](https://arxiv.org/abs/2203.08688), which was accepted for presentation at the 21st International Conference on Image Analysis and Processing (ICIAP).
 
 #### Python environment
 Requirements: python 3, allennlp 2.8.0, h5py 3.6.0, pandas 1.3.5, spacy 2.3.5, torch 1.7.0 (also tested with 1.8)
@@ -15,6 +15,20 @@ export PYTHONPATH=$(pwd):${PYTHONPATH}
     - Split folders for train/val/test
     - GloVe checkpoints
     - HowTo100M weights for EAO
+    - Pre-trained models for HGR and EAO
+
+- Local structure should resemble the following:
+    - t2vretrieval
+    - framework
+    - annotations
+        - msr-vttRET
+        - epic100
+        - ...
+    - ordered_feature
+        - msrvttSA
+        - epic100SA
+        - ...
+    - results
 
 #### Training
 To launch a training, first select a configuration file (e.g. ``prepare_mlmatch_configs_EK100_TBN_thrPos_hardPos.py``) and execute the following:
@@ -38,18 +52,19 @@ To resume one of the checkpoints provided:
 
 #### Pretrained models
 - Pretrained models have also been added to the [**Zenodo repository**]()! It contains:
-    *On EPIC-Kitchens-100:*
-    - HGR (35.9 nDCG, 39.5 mAP)
-    - HGR with **RANP**, thr=0.15 (58.8 nDCG, 47.2 mAP)
-    - EAO (34.5 nDCG, 35.0 mAP)
-    - EAO with **RANP**, thr=0.10 (59.5 nDCG, 45.1 mAP)
+    
+    *EPIC-Kitchens-100:*
+    - HGR (35.9 nDCG, 39.5 mAP) -> HGR_baseline_EK100.zip
+    - HGR with **RANP** (58.8 nDCG, 47.2 mAP) -> HGR_TripletRANP_Hard_EK100.zip
+    - EAO (34.5 nDCG, 35.0 mAP) -> EAO_baseline_All_EK100.zip
+    - EAO with **RANP** (59.5 nDCG, 45.1 mAP) -> EAO_NCERANP_Hard_EK100.zip
 
-    *On MSR-VTT:*
+    *MSR-VTT:*
     - HGR (26.7 nDCG)
-    - HGR with **RANP**, thr=0.10 (35.4 nDCG)
-    - EAO (24.8 nDCG)
-    - EAO with **RANP**, thr=0.10 (34.4 nDCG)
-    - EAO with **RANP** (+HowTo100M PT), thr=0.10 (35.6 nDCG)
+    - HGR with **RANP** (35.4 nDCG)
+    - EAO (24.8 nDCG) -> EAO_baseline_MSRVTT.zip
+    - EAO with **RANP** (34.4 nDCG) -> EAO_NCERANP_SemiHard_MSRVTT.zip
+    - EAO with **RANP** (+HowTo100M PT) (35.6 nDCG) -> EAO_NCERANP_SemiHard_EAOPT_MSRVTT.zip
     
     *Charades:*
     - HGR ()
@@ -60,8 +75,8 @@ To resume one of the checkpoints provided:
     *MSVD:*
     - HGR ()
     - HGR with **RANP** ()
-    - EAO ()
-    - EAO with **RANP** ()
+    - EAO (35.4 nDCG)
+    - EAO with **RANP** (41.2 nDCG)
 
 #### Acknowledgements
 This work was supported by MUR Progetti di Ricerca di Rilevante Interesse Nazionale (PRIN) 2022 (project code 2022YTE579), by the Department Strategic Plan (PSD) of the University of Udine – Interdepartmental Project on Artificial Intelligence (2020-25), and by Startup Grant IN2814 (2021-24) of University of Bolzano. We gratefully acknowledge the support from Amazon AWS Machine Learning Research Awards (MLRA) and NVIDIA AI Technology Centre (NVAITC), EMEA. We acknowledge the CINECA award under the ISCRA initiative, which provided  computing resources for this work.
@@ -80,7 +95,6 @@ If you use this code as part of any published research, we'd really appreciate i
   title={Improving semantic video retrieval models by training with a relevance-aware online mining strategy},
   author={Falcon, Alex and Serra, Giuseppe and Lanz, Oswald},
   journal={Computer Vision and Image Understanding},
-  pages={},
   year={2024}
 }
 ```

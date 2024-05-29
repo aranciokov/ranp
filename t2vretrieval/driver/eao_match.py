@@ -55,6 +55,8 @@ def main():
     model_fn = t2vretrieval.models.everything_at_once_model.EverythingAtOnceRANPWord2VecModel
   if hasattr(model_cfg, "use_normsoftmax_ranp") and model_cfg.use_normsoftmax_ranp and hasattr(model_cfg, "use_word2vec") and model_cfg.use_word2vec:
     model_fn = t2vretrieval.models.everything_at_once_model.EverythingAtOnceNormSoftRANPModel
+  if hasattr(model_cfg, "mine_hard_positives") and model_cfg.mine_hard_positives and hasattr(model_cfg, "use_word2vec") and model_cfg.use_word2vec and hasattr(model_cfg, "rap_only") and model_cfg.rap_only:
+    model_fn = t2vretrieval.models.everything_at_once_model.EverythingAtOnceRAPOnlyW2VModel
   _model = model_fn(model_cfg, _logger=_logger)
   
   collate_fn = t2vretrieval.readers.rolegraphs.collate_graph_fn
@@ -65,6 +67,10 @@ def main():
     dname = "msr-vtt"
     if "1kA" in path_cfg.name_file['val']:
         dname = "msr-vtt-1kA"
+  elif "msvd" in path_cfg.int2word_file:
+    dname = "msvd"
+  elif "charades" in path_cfg.int2word_file:
+    dname = "charades"
   else:
     assert False, f'can not recognize dataset name from {path_cfg.int2word_file}'
 

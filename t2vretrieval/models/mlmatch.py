@@ -237,7 +237,14 @@ class RoleGraphMatchModel(t2vretrieval.models.globalmatch.GlobalMatchModel):
     for vid_name in vid_names:
       i2t_gts.append([])
       for i, cap_name in enumerate(cap_names):
-        if cap_name in tst_reader.dataset.ref_captions[vid_name]:
+        if tst_reader.dataset.dname == "charades":
+          valid_names = [n for n in tst_reader.dataset.ref_captions if n.startswith(vid_name)]
+          iter_on = []
+          for n in valid_names:
+            iter_on.extend(tst_reader.dataset.ref_captions[n])
+        else:
+          iter_on = tst_reader.dataset.ref_captions[vid_name]
+        if cap_name in iter_on:
           i2t_gts[-1].append(i)
 
     t2i_gts = {}
@@ -381,3 +388,75 @@ class HPRoleGraphMatchModel(RoleGraphMatchModel):
 
     return loss
 
+
+class HPOnlyRoleGraphMatchModel(RoleGraphMatchModel):
+  def build_loss(self):
+    criterion = t2vretrieval.models.criterion.ContrastiveLossHP(
+      margin=self.config.margin,
+      margin_pos=self.config.margin_pos,
+      max_violation=self.config.max_violation,
+      topk=self.config.hard_topk,
+      direction=self.config.loss_direction)
+    return criterion
+
+  def forward_loss(self, batch_data, step=None):
+    enc_outs = self.forward_video_embed(batch_data)
+    cap_enc_outs = self.forward_text_embed(batch_data)
+    enc_outs.update(cap_enc_outs)
+
+    sent_scores, verb_scores, noun_scores = self.generate_scores(**enc_outs)
+    scores = (sent_scores + verb_scores + noun_scores) / 3
+
+    from .ndcg_map_helpers import get_relevances_single_caption, get_relevances_multi_caption
+
+    threshold_pos = batch_data["threshold_pos"]
+    assert threshold_pos < 1
+    noun_classes = batch_data['noun_classes']
+    verb_class = batch_data['verb_class']
+    # get_relevances should be dataset-dependent
+    #  (for MSR->multi-captions-per-clip->
+    #  it should not be "batch captions"x"batch captions", but "batch-videos' 'pooled-captions'"x"batch caption")
+    #  --> video_verb_classes, video_noun_classes from batch_data
+    if "video_verb_classes" in batch_data:
+      video_verb_classes = batch_data["video_verb_classes"]
+      video_noun_classes = batch_data["video_noun_classes"]
+
+      sent_rel = get_relevances_multi_caption(video_verbs=video_verb_classes, video_nouns=video_noun_classes,
+                                              batch_verbs=verb_class, batch_nouns=noun_classes).cuda()
+      noun_rel = get_relevances_multi_caption(video_nouns=video_noun_classes,
+                                              batch_nouns=noun_classes).cuda()
+      verb_rel = get_relevances_multi_caption(video_verbs=video_verb_classes,
+                                              batch_verbs=verb_class).cuda()
+
+    else:
+      sent_rel = get_relevances_single_caption(batch_verbs=verb_class, batch_nouns=noun_classes).cuda()
+      noun_rel = get_relevances_single_caption(batch_nouns=noun_classes).cuda()
+      verb_rel = get_relevances_single_caption(batch_verbs=verb_class).cuda()
+
+    sent_loss, hp_sent_loss = self.criterion(sent_scores, batch_relevance=sent_rel, threshold_pos=threshold_pos)
+    verb_loss, hp_verb_loss = self.criterion(verb_scores, batch_relevance=verb_rel, threshold_pos=threshold_pos)
+    noun_loss, hp_noun_loss = self.criterion(noun_scores, batch_relevance=noun_rel, threshold_pos=threshold_pos)
+    fusion_loss, hp_fusion_loss = self.criterion(scores, batch_relevance=sent_rel, threshold_pos=threshold_pos)
+
+    ####### main difference: HP only
+    if self.config.loss_weights is None:
+      loss = hp_fusion_loss
+    else:
+      loss = self.config.loss_weights[0] * hp_fusion_loss + \
+             self.config.loss_weights[1] * hp_sent_loss + \
+             self.config.loss_weights[2] * hp_verb_loss + \
+             self.config.loss_weights[3] * hp_noun_loss
+
+    if step is not None and self.config.monitor_iter > 0 and step % self.config.monitor_iter == 0:
+      neg_scores = scores.masked_fill(torch.eye(len(scores), dtype=torch.bool).to(self.device), -1e10)
+      self.print_fn('\tstep %d: pos mean scores %.2f, hard neg mean scores i2t %.2f, t2i %.2f'%(
+        step, torch.mean(torch.diag(scores)), torch.mean(torch.max(neg_scores, 1)[0]),
+        torch.mean(torch.max(neg_scores, 0)[0])))
+      self.print_fn('\tstep %d: sent_loss %.4f, verb_loss %.4f, noun_loss %.4f, fusion_loss %.4f'%(
+        step, hp_sent_loss.data.item(), hp_verb_loss.data.item(), hp_noun_loss.data.item(), hp_fusion_loss.data.item()))
+
+    self.logger.add_scalar("train/loss", loss.item(), step)
+
+    return loss
+    
+    

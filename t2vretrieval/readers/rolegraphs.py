@@ -49,7 +49,10 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
     self.max_attn_len = max_attn_len
     self.load_video_first = load_video_first
 
-    self.names = np.load(name_file)
+    if dname == "charades":
+        self.names = np.load(name_file, allow_pickle=True)
+    else:
+        self.names = np.load(name_file)
     self.word2int = json.load(open(word2int_file))
 
     self.num_videos = len(self.names)
@@ -64,7 +67,14 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
       self.captions = list()
       self.pair_idxs = []
       for i, name in enumerate(self.names):
-        for j, sent in enumerate(self.ref_captions[name]):
+        if dname == "charades":
+          valid_names = [n for n in self.ref_captions if n.startswith(name)]
+          iter_on = []
+          for n in valid_names:
+            iter_on.extend(self.ref_captions[n])
+        else:
+          iter_on = self.ref_captions[name]
+        for j, sent in enumerate(iter_on):
           self.captions.append(sent)
           self.pair_idxs.append((i, j))
 
@@ -86,6 +96,7 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
           if dname == "epic":
             print("reading epic100 unique caps")
             self.captions = pandas.read_csv("annotation/epic100RET/EPIC_100_retrieval_test_sentence.csv")['narration'].values
+#             self.captions = pandas.read_csv("annotation/epic100RET/EPIC_100_retrieval_train.csv")['narration'].values
           if dname == "msr-vtt-1kA":
             self.captions = list()
             self.pair_idxs = []
@@ -133,6 +144,21 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
     self.dataset_file_path = dataset_file
     if dataset_file != '':
       self.dataset_file = json.load(open(dataset_file, "r"))['database']
+      if 'msvd' in dataset_file or 'charades' in dataset_file:
+        self.video_cap_keys = {}
+        for vidkey_senkey in self.dataset_file.keys():
+          vidkey = "_".join(vidkey_senkey.split("_")[:-1])
+          if vidkey not in self.video_cap_keys:
+            self.video_cap_keys[vidkey] = []
+          self.video_cap_keys[vidkey].append(vidkey_senkey)
+          
+        self.video_captions_verb_classes = {}
+        self.video_captions_noun_classes = {}
+        for vk, vcks in self.video_cap_keys.items():
+          self.video_captions_verb_classes[vk] = extract_video_classes(self.dataset_file, vcks, "verb_class")
+          self.video_captions_noun_classes[vk] = extract_video_classes(self.dataset_file, vcks, "noun_classes")
+        print("computed video->[captions] classes")
+  
       if 'msrvtt' in dataset_file:
         self.video_cap_keys = {}
         tmp = {}
@@ -261,7 +287,10 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
     if self.is_train:
       video_idx, cap_idx = self.pair_idxs[idx]
       name = self.names[video_idx]
-      sent = self.ref_captions[name][cap_idx]
+      if self.dname == "charades":
+        sent = self.ref_captions[f"{name}_{cap_idx}"][0]
+      else:
+        sent = self.ref_captions[name][cap_idx]
       out = self.get_caption_outs(out, sent, self.ref_graphs[sent])
     else:
       video_idx = idx
@@ -289,7 +318,7 @@ class RoleGraphDataset(t2vretrieval.readers.mpdata.MPDataset):
 
         out['video_noun_classes'] = self.video_captions_noun_classes[video_name]
         out['video_verb_classes'] = self.video_captions_verb_classes[video_name]
-      elif self.dname == "vatex":
+      elif self.dname in ["vatex", "msvd", "charades"]:
         _key = f'{name}_{cap_idx}'
         out['video_noun_classes'] = self.video_captions_noun_classes[name]
         out['video_verb_classes'] = self.video_captions_verb_classes[name]

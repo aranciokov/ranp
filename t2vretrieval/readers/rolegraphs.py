@@ -357,7 +357,7 @@ class Word2VecRoleGraphDataset(RoleGraphDataset):
         # import gensim.downloader as api
         # self.wv = api.load('word2vec-google-news-300')
         from gensim.models.keyedvectors import KeyedVectors
-        self.wv = KeyedVectors.load_word2vec_format("../everything_at_once/data/GoogleNews-vectors-negative300.bin", binary=True)
+        self.wv = KeyedVectors.load_word2vec_format("GoogleNews-vectors-negative300.bin", binary=True)
         
     def process_sent(self, sent, max_words):
         tokens = [self.wv[w] for w in sent.split() if w in self.wv]  # else np.random.randn((300)).astype('f') 

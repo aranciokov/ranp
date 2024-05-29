@@ -1,4 +1,4 @@
-# Relevance-aware online mining for a more semantic video retrieval
+# Improving Semantic Video Retrieval models by Training with a Relevance-aware Online Mining strategy
 In this repo, we provide code and pretrained models for the paper [**Improving semantic video retrieval models by training with a relevance-aware online mining strategy** (coming soon)](), which has been accepted at **Computer Vision and Image Understanding**! The code also covers the implementation of a preliminary version of this work, called ["**Learning video retrieval models with relevance-aware online mining**"](https://arxiv.org/abs/2203.08688), which was accepted for presentation at the 21st International Conference on Image Analysis and Processing (ICIAP).
 
 #### Python environment

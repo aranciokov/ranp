@@ -22,7 +22,7 @@ export PYTHONPATH=$(pwd):${PYTHONPATH}
     - framework
     - annotations
         - msr-vttRET
-        - epic100
+        - epic100RET
         - ...
     - ordered_feature
         - msrvttSA
@@ -60,23 +60,17 @@ To resume one of the checkpoints provided:
     - EAO with **RANP** (59.5 nDCG, 45.1 mAP) -> EAO_NCERANP_Hard_EK100.zip
 
     *MSR-VTT:*
-    - HGR (26.7 nDCG)
-    - HGR with **RANP** (35.4 nDCG)
+    - HGR (26.7 nDCG) -> HGR_baseline_All_MSRVTT.zip
+    - HGR with **RANP** (35.4 nDCG) -> HGR_RANP_SemiAll_MSRVTT.zip
     - EAO (24.8 nDCG) -> EAO_baseline_MSRVTT.zip
     - EAO with **RANP** (34.4 nDCG) -> EAO_NCERANP_SemiHard_MSRVTT.zip
     - EAO with **RANP** (+HowTo100M PT) (35.6 nDCG) -> EAO_NCERANP_SemiHard_EAOPT_MSRVTT.zip
     
-    *Charades:*
-    - HGR ()
-    - HGR with **RANP** ()
-    - EAO ()
-    - EAO with **RANP** ()
-    
     *MSVD:*
-    - HGR ()
-    - HGR with **RANP** ()
-    - EAO (35.4 nDCG)
-    - EAO with **RANP** (41.2 nDCG)
+    - HGR (37.9 nDCG) -> HGR_baseline_Hard_MSVD.zip
+    - HGR with **RANP** (44.0 nDCG) -> HGR_RANP_Hard_MSVD.zip
+    - EAO (35.4 nDCG) -> EAO_baseline_All_MSVD.zip
+    - EAO with **RANP** (41.2 nDCG) -> EAO_RANP_SemiAll_MSVD.zip
 
 #### Acknowledgements
 This work was supported by MUR Progetti di Ricerca di Rilevante Interesse Nazionale (PRIN) 2022 (project code 2022YTE579), by the Department Strategic Plan (PSD) of the University of Udine – Interdepartmental Project on Artificial Intelligence (2020-25), and by Startup Grant IN2814 (2021-24) of University of Bolzano. We gratefully acknowledge the support from Amazon AWS Machine Learning Research Awards (MLRA) and NVIDIA AI Technology Centre (NVAITC), EMEA. We acknowledge the CINECA award under the ISCRA initiative, which provided  computing resources for this work.

@@ -27,6 +27,14 @@ Using HGR on EPIC-Kitchens-100:
 - Semi+Hard config file: prepare_mlmatch_configs_EK100_fixMargin_TBN_SemiHN-PT.py
 - Hard config file: prepare_mlmatch_configs_EK100_fixMargin_TBN.py
 
+Using HGR on MSVD:
+- Example config file: prepare_mlmatch_configs_MSVD_baseline.py
+- Example with RANP config file: prepare_mlmatch_configs_MSVD_TripletRANP.py
+
+Using HGR on Charades:
+- Example config file: prepare_mlmatch_configs_Charades_baseNoHN.py
+- Example with RANP config file: prepare_mlmatch_configs_Charades_TripletRANP_NoHN.py
+
 Using EAO on MSR-VTT:
 - Zero shot: 
   1. run ```python t2vretrieval/driver/configs/prepare_eaomatch_configs_MSRVTT_base_testPT.py .``` -> obtain directory $m
@@ -53,3 +61,13 @@ Using EAO on EPIC-Kitchens-100:
 - All config file: prepare_eaomatch_configs_EK100_base_noHardNeg.py
 - Semi+All config file: prepare_eaomatch_configs_EK100_base-NoHN_PT-SemiHN.py
 - Semi+Hard config file: prepare_eaomatch_configs_EK100_base_PT-SemiHN.py
+
+Using EAO on MSVD:
+- Semi pretraining: prepare_eaomatch_configs_MSVD_baseSemiHN.py
+- Semi+Hard config file: prepare_eaomatch_configs_MSVD_baseHN_SemiHNPT.py
+- Semi+Hard with RANP config file: prepare_eaomatch_configs_MSVD_RANPHN_SemiHNPT.py
+
+Using EAO on Charades:
+- Example Semi config file: prepare_eaomatch_configs_Charades_baseSemiHN.py
+- Example Semi+Hard config file: prepare_eaomatch_configs_Charades_baseHN_SemiHNPT.py
+- Example Semi+Hard with RANP config file: prepare_eaomatch_configs_Charades_RANPHN_SemiHNPT.py

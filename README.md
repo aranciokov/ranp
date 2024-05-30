@@ -10,12 +10,12 @@ export PYTHONPATH=$(pwd):${PYTHONPATH}
 ```
 
 #### Data
-- All the used data has been packed in the following [**Zenodo repository**]()! It contains:
+- All the used data has been packed in the following [**Zenodo repository**](https://zenodo.org/doi/10.5281/zenodo.11351375)! It contains:
     - Pre-extracted features for EPIC-Kitchens-100 (TBN), MSR-VTT (ResNet-152, 3D-ResNeXt-101), Charades (ViT), MSVD (ViT)
     - Split folders for train/val/test
     - GloVe checkpoints
     - HowTo100M weights for EAO
-    - Pre-trained models for HGR and EAO
+    - Pre-trained models for HGR and EAO (file: PROVA_MSR_PT_noFT.th)
 
 - Local structure should resemble the following:
     - t2vretrieval
@@ -51,7 +51,7 @@ To resume one of the checkpoints provided:
 ``python t2vretrieval/driver/multilevel_match.py $resdir/model.json $resdir/path.json --eval_set tst --resume_file checkpoint.th``
 
 #### Pretrained models
-- Pretrained models have also been added to the [**Zenodo repository**]()! It contains:
+- Pretrained models have also been added to the [**Zenodo repository**](https://zenodo.org/doi/10.5281/zenodo.11351375)! It contains:
     
     *EPIC-Kitchens-100:*
     - HGR (35.9 nDCG, 39.5 mAP) -> HGR_baseline_EK100.zip
